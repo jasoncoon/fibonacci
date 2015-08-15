@@ -31,23 +31,28 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService) {
 
   $scope.devices = [];
 
-  // $scope.status = 'Loading access token...';
-  // chrome.storage.sync.get('accessToken',
-    // function(result) {
-      // $scope.status = 'Loaded access token';
-      // $scope.accessToken = result.accessToken;
-      // $('#inputAccessToken').scope().$apply();
-    // }
-  // );
-
   $scope.getDevices = function() {
     $scope.status = 'Getting devices...';
 
     $http.get('https://api.spark.io/v1/devices?access_token=' + $scope.accessToken).
       success(function (data, status, headers, config) {
         $scope.devices = data;
-        if(data && data.length > 0)
-          $scope.device = data[0];
+        if(data && data.length > 0) {
+          if(Modernizr.localstorage) {
+            var deviceId = localStorage["deviceId"];
+            if(deviceId) {
+              for(var i = 0; i < data.length; i++) {
+                if(data[i].id == deviceId) {
+                 $scope.device = data[i] ;
+                 break;
+                }
+              }
+            }
+          }
+
+          if(!$scope.device)
+            $scope.device = data[0];
+        }
         $scope.status = 'Loaded devices';
       }).
       error(function (data, status, headers, config) {
@@ -56,16 +61,25 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService) {
       });
   }
 
+  if (Modernizr.localstorage) {
+    $scope.accessToken = localStorage["accessToken"];
+    // $('#inputAccessToken').scope().$apply();
+
+    if($scope.accessToken && $scope.accessToken != "") {
+      $scope.status = "";
+      $scope.getDevices();
+    }
+  }
+
   $scope.save = function () {
-    $scope.status = 'Saving access token...';
-    chrome.storage.sync.set({'accessToken': $scope.accessToken},
-    function() {
-      $scope.status = 'Saved access token';
-    });
+    localStorage["accessToken"] = $scope.accessToken;
+    $scope.status = "Saved access token.";
   }
 
   $scope.connect = function() {
     $scope.busy = true;
+
+    localStorage["deviceId"] = $scope.device.id;
 
     $http.get('https://api.spark.io/v1/devices/' + $scope.device.id + '/power?access_token=' + $scope.accessToken).
       success(function (data, status, headers, config) {
