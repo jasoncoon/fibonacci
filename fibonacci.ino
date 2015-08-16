@@ -184,6 +184,7 @@ void loop() {
     
     // send the 'leds' array out to the actual LED strip
     FastLED.show();
+    
     // insert a delay to keep the framerate modest
     FastLED.delay(delay); 
     
@@ -392,7 +393,7 @@ uint8_t juggle() {
 uint8_t fire() {
     heatMap(HeatColors_p, true);
     
-    return 15;
+    return 30;
 }
 
 CRGBPalette16 icePalette = CRGBPalette16(CRGB::Black, CRGB::Blue, CRGB::Aqua, CRGB::White);
@@ -400,7 +401,7 @@ CRGBPalette16 icePalette = CRGBPalette16(CRGB::Black, CRGB::Blue, CRGB::Aqua, CR
 uint8_t water() {
     heatMap(icePalette, false);
     
-    return 15;
+    return 30;
 }
 
 uint8_t analogClock() {
@@ -557,30 +558,47 @@ uint8_t spiral2Arms[spiral2Count][spiral2Length] = {
 };
 
 template <size_t armCount, size_t armLength>
-void fillSpiral(uint8_t (&spiral)[armCount][armLength]) {
+void fillSpiral(uint8_t (&spiral)[armCount][armLength], bool reverse) {
     fill_solid(leds, NUM_LEDS, ColorFromPalette(currentPalette, 0, 255, BLEND));
     
-    uint8_t offset = 0;
+    byte offset = 0;
+    static byte hue = 0;
     
     for(uint8_t i = 0; i < armCount; i++) {
-        CRGB color = ColorFromPalette(currentPalette, gHue + offset, 255, BLEND);
+        CRGB color;
+        
+        if(reverse)
+            color = ColorFromPalette(currentPalette, hue + offset, 255, BLEND);
+        else
+            color = ColorFromPalette(currentPalette, hue - offset, 255, BLEND);
         
         for(uint8_t j = 0; j < armLength; j++) {
             leds[spiral[i][j]] = color;
         }
         
-        offset += 255 / armCount;
+        if(reverse)
+            offset += 255 / armCount;
+        else
+            offset -= 255 / armCount;
+    }
+    
+    EVERY_N_MILLISECONDS( 20 )
+    { 
+        if(reverse)
+            hue++;
+        else
+            hue--;
     }
 }
 
 uint8_t spiral1() {
-    fillSpiral(spiral1Arms);
+    fillSpiral(spiral1Arms, false);
     
     return 0;
 }
 
 uint8_t spiral2() {
-    fillSpiral(spiral2Arms);
+    fillSpiral(spiral2Arms, true);
     
     return 0;
 }
@@ -726,51 +744,43 @@ void heatMap(CRGBPalette16 palette, bool up) {
     uint8_t sparking = 120;
     
     // Array of temperature readings at each simulation cell
-    static const uint8_t halfLedCount = NUM_LEDS / 2;
-    static byte heat[2][halfLedCount];
+    static byte heat[kMatrixWidth][kMatrixHeight];
     
-    byte colorindex;
-    
-    for(uint8_t x = 0; x < 2; x++) {
+    for (int x = 0; x < kMatrixWidth; x++)
+    {
         // Step 1.  Cool down every cell a little
-        for( int i = 0; i < halfLedCount; i++) {
-          heat[x][i] = qsub8( heat[x][i],  random8(0, ((cooling * 10) / halfLedCount) + 2));
+        for (int y = 0; y < kMatrixHeight; y++)
+        {
+            heat[x][y] = qsub8(heat[x][y], random8(0, ((cooling * 10) / kMatrixHeight) + 2));
         }
         
         // Step 2.  Heat from each cell drifts 'up' and diffuses a little
-        for( int k= halfLedCount - 1; k >= 2; k--) {
-          heat[x][k] = (heat[x][k - 1] + heat[x][k - 2] + heat[x][k - 2] ) / 3;
+        for (int y = 0; y < kMatrixHeight; y++)
+        {
+            heat[x][y] = (heat[x][y + 1] + heat[x][y + 2] + heat[x][y + 2]) / 3;
         }
         
-        // Step 3.  Randomly ignite new 'sparks' of heat near the bottom
-        if( random8() < sparking ) {
-          int y = random8(7);
-          heat[x][y] = qadd8( heat[x][y], random8(160,255) );
+        // Step 2.  Randomly ignite new 'sparks' of heat
+        if (random8() < sparking)
+        {
+            heat[x][kMatrixHeight - 1] = qadd8(heat[x][kMatrixHeight - 1], random8(160, 255));
         }
         
         // Step 4.  Map from heat cells to LED colors
-        for( int j = 0; j < halfLedCount; j++) {
-            // Scale the heat value from 0-255 down to 0-240
-            // for best results with color palettes.
-            colorindex = scale8(heat[x][j], 240);
+        for (int y = 0; y < kMatrixHeight; y++)
+        {
+            uint8_t colorIndex = heat[x][y];
             
-            CRGB color = ColorFromPalette(palette, colorindex);
+            // Recommend that you use values 0-240 rather than
+            // the usual 0-255, as the last 15 colors will be
+            // 'wrapping around' from the hot end to the cold end,
+            // which looks wrong.
+            colorIndex = scale8(colorIndex, 240);
             
-            if(up) {
-                if(x == 0) {
-                    leds[(halfLedCount - 1) - j] = color;
-                }
-                else {
-                    leds[halfLedCount + j] = color;
-                }
-            }
-            else {
-                if(x == 0) {
-                    leds[j] = color;
-                }
-                else {
-                    leds[(NUM_LEDS - 1) - j] = color;
-                }
+            // override color 0 to ensure a black background
+            if (colorIndex != 0)
+            {
+                setPixelXY(x, y, ColorFromPalette(palette, colorIndex, 255, BLEND));
             }
         }
     }

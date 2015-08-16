@@ -34,7 +34,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService) {
   $scope.getDevices = function() {
     $scope.status = 'Getting devices...';
 
-    $http.get('https://api.spark.io/v1/devices?access_token=' + $scope.accessToken).
+    $http.get('https://api.particle.io/v1/devices?access_token=' + $scope.accessToken).
       success(function (data, status, headers, config) {
         $scope.devices = data;
         if(data && data.length > 0) {
@@ -81,7 +81,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService) {
 
     localStorage["deviceId"] = $scope.device.id;
 
-    $http.get('https://api.spark.io/v1/devices/' + $scope.device.id + '/power?access_token=' + $scope.accessToken).
+    $http.get('https://api.particle.io/v1/devices/' + $scope.device.id + '/power?access_token=' + $scope.accessToken).
       success(function (data, status, headers, config) {
         $scope.power = data.result;
         $scope.status = 'Loaded power';
@@ -91,7 +91,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService) {
         $scope.status = data.error_description;
       });
 
-    $http.get('https://api.spark.io/v1/devices/' + $scope.device.id + '/timezone?access_token=' + $scope.accessToken).
+    $http.get('https://api.particle.io/v1/devices/' + $scope.device.id + '/timezone?access_token=' + $scope.accessToken).
       success(function (data, status, headers, config) {
         $scope.timezone = data.result;
         $scope.status = 'Loaded time zone';
@@ -101,7 +101,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService) {
         $scope.status = data.error_description;
       });
 
-    $http.get('https://api.spark.io/v1/devices/' + $scope.device.id + '/brightness?access_token=' + $scope.accessToken).
+    $http.get('https://api.particle.io/v1/devices/' + $scope.device.id + '/brightness?access_token=' + $scope.accessToken).
       success(function (data, status, headers, config) {
         $scope.brightness = data.result;
         $scope.status = 'Loaded brightness';
@@ -111,7 +111,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService) {
         $scope.status = data.error_description;
       });
 
-    $http.get('https://api.spark.io/v1/devices/' + $scope.device.id + '/flipClock?access_token=' + $scope.accessToken).
+    $http.get('https://api.particle.io/v1/devices/' + $scope.device.id + '/flipClock?access_token=' + $scope.accessToken).
       success(function (data, status, headers, config) {
         $scope.flipClock = data.result;
         $scope.status = 'Loaded clock orientation';
@@ -121,7 +121,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService) {
         $scope.status = data.error_description;
       });
 
-    $http.get('https://api.spark.io/v1/devices/' + $scope.device.id + '/r?access_token=' + $scope.accessToken).
+    $http.get('https://api.particle.io/v1/devices/' + $scope.device.id + '/r?access_token=' + $scope.accessToken).
       success(function (data, status, headers, config) {
         $scope.r = data.result;
         $scope.status = 'Loaded red';
@@ -131,7 +131,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService) {
         $scope.status = data.error_description;
       });
 
-    $http.get('https://api.spark.io/v1/devices/' + $scope.device.id + '/g?access_token=' + $scope.accessToken).
+    $http.get('https://api.particle.io/v1/devices/' + $scope.device.id + '/g?access_token=' + $scope.accessToken).
       success(function (data, status, headers, config) {
         $scope.g = data.result;
         $scope.status = 'Loaded green';
@@ -141,7 +141,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService) {
         $scope.status = data.error_description;
       });
 
-    $http.get('https://api.spark.io/v1/devices/' + $scope.device.id + '/b?access_token=' + $scope.accessToken).
+    $http.get('https://api.particle.io/v1/devices/' + $scope.device.id + '/b?access_token=' + $scope.accessToken).
       success(function (data, status, headers, config) {
         $scope.b = data.result;
         $scope.status = 'Loaded blue';
@@ -156,7 +156,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService) {
 
   $scope.getPower = function () {
     // $scope.busy = true;
-    $http.get('https://api.spark.io/v1/devices/' + $scope.device.id + '/power?access_token=' + $scope.accessToken).
+    $http.get('https://api.particle.io/v1/devices/' + $scope.device.id + '/power?access_token=' + $scope.accessToken).
       success(function (data, status, headers, config) {
         $scope.busy = false;
         $scope.power = data.result;
@@ -172,7 +172,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService) {
     var newPower = $scope.power == 0 ? 1 : 0;
     $http({
       method: 'POST',
-      url: 'https://api.spark.io/v1/devices/' + $scope.device.id + '/variable',
+      url: 'https://api.particle.io/v1/devices/' + $scope.device.id + '/variable',
       data: { access_token: $scope.accessToken, args: "pwr:" + newPower },
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     }).
@@ -192,7 +192,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService) {
     var newFlipClock = $scope.flipClock == 0 ? 1 : 0;
     $http({
       method: 'POST',
-      url: 'https://api.spark.io/v1/devices/' + $scope.device.id + '/variable',
+      url: 'https://api.particle.io/v1/devices/' + $scope.device.id + '/variable',
       data: { access_token: $scope.accessToken, args: "flpclk:" + newFlipClock },
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     }).
@@ -208,7 +208,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService) {
 
   $scope.getTimezone = function () {
     // $scope.busy = true;
-    $http.get('https://api.spark.io/v1/devices/' + $scope.device.id + '/timezone?access_token=' + $scope.accessToken).
+    $http.get('https://api.particle.io/v1/devices/' + $scope.device.id + '/timezone?access_token=' + $scope.accessToken).
       success(function (data, status, headers, config) {
         $scope.busy = false;
         $scope.timezone = data.result;
@@ -223,7 +223,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService) {
     // $scope.busy = true;
     $http({
       method: 'POST',
-      url: 'https://api.spark.io/v1/devices/' + $scope.device.id + '/variable',
+      url: 'https://api.particle.io/v1/devices/' + $scope.device.id + '/variable',
       data: { access_token: $scope.accessToken, args: "tz:" + $scope.timezone },
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     }).
@@ -240,7 +240,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService) {
 
   $scope.getBrightness = function () {
     // $scope.busy = true;
-    $http.get('https://api.spark.io/v1/devices/' + $scope.device.id + '/brightness?access_token=' + $scope.accessToken).
+    $http.get('https://api.particle.io/v1/devices/' + $scope.device.id + '/brightness?access_token=' + $scope.accessToken).
       success(function (data, status, headers, config) {
         $scope.busy = false;
         $scope.brightness = data.result;
@@ -255,7 +255,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService) {
     // $scope.busy = true;
     $http({
       method: 'POST',
-      url: 'https://api.spark.io/v1/devices/' + $scope.device.id + '/variable',
+      url: 'https://api.particle.io/v1/devices/' + $scope.device.id + '/variable',
       data: { access_token: $scope.accessToken, args: "brt:" + $scope.brightness },
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     }).
@@ -295,7 +295,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService) {
     // $scope.busy = true;
     $http({
       method: 'POST',
-      url: 'https://api.spark.io/v1/devices/' + $scope.device.id + '/variable',
+      url: 'https://api.particle.io/v1/devices/' + $scope.device.id + '/variable',
       data: { access_token: $scope.accessToken, args: "r:" + $scope.r },
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     }).
@@ -314,7 +314,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService) {
     // $scope.busy = true;
     $http({
       method: 'POST',
-      url: 'https://api.spark.io/v1/devices/' + $scope.device.id + '/variable',
+      url: 'https://api.particle.io/v1/devices/' + $scope.device.id + '/variable',
       data: { access_token: $scope.accessToken, args: "g:" + $scope.g },
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     }).
@@ -333,7 +333,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService) {
     // $scope.busy = true;
     $http({
       method: 'POST',
-      url: 'https://api.spark.io/v1/devices/' + $scope.device.id + '/variable',
+      url: 'https://api.particle.io/v1/devices/' + $scope.device.id + '/variable',
       data: { access_token: $scope.accessToken, args: "b:" + $scope.b },
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     }).
@@ -350,7 +350,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService) {
 
   $scope.getPatternIndex = function () {
     // $scope.busy = true;
-    $http.get('https://api.spark.io/v1/devices/' + $scope.device.id + '/patternIndex?access_token=' + $scope.accessToken).
+    $http.get('https://api.particle.io/v1/devices/' + $scope.device.id + '/patternIndex?access_token=' + $scope.accessToken).
       success(function (data, status, headers, config) {
         $scope.busy = false;
         $scope.patternIndex = data.result;
@@ -384,7 +384,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService) {
     // $scope.busy = true;
 
     // get the pattern count
-    var promise = $http.get('https://api.spark.io/v1/devices/' + $scope.device.id + '/patternCount?access_token=' + $scope.accessToken);
+    var promise = $http.get('https://api.particle.io/v1/devices/' + $scope.device.id + '/patternCount?access_token=' + $scope.accessToken);
 
     // get the name of the first pattern
     // getPatternNames will then recursively call itself until all pattern names are retrieved
@@ -407,7 +407,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService) {
 
     var promise = $http({
         method: 'POST',
-        url: 'https://api.spark.io/v1/devices/' + $scope.device.id + '/patternIndex',
+        url: 'https://api.particle.io/v1/devices/' + $scope.device.id + '/patternIndex',
         data: { access_token: $scope.accessToken, args: $scope.pattern.index },
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
       })
@@ -427,13 +427,13 @@ app.factory('patternService', function ($http) {
     getPatternName: function (index, deviceId, accessToken) {
       return $http({
         method: 'POST',
-        url: 'https://api.spark.io/v1/devices/' + deviceId + '/patternName',
+        url: 'https://api.particle.io/v1/devices/' + deviceId + '/patternName',
         data: { access_token: accessToken, args: index },
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
       })
         .then(
         function (payload) {
-          return $http.get('https://api.spark.io/v1/devices/' + deviceId + '/patternName?access_token=' + accessToken);
+          return $http.get('https://api.particle.io/v1/devices/' + deviceId + '/patternName?access_token=' + accessToken);
         });
     }
   }
