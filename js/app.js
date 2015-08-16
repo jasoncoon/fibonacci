@@ -77,7 +77,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService) {
   }
 
   $scope.connect = function() {
-    $scope.busy = true;
+    // $scope.busy = true;
 
     localStorage["deviceId"] = $scope.device.id;
 
@@ -155,7 +155,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService) {
   }
 
   $scope.getPower = function () {
-    $scope.busy = true;
+    // $scope.busy = true;
     $http.get('https://api.spark.io/v1/devices/' + $scope.device.id + '/power?access_token=' + $scope.accessToken).
       success(function (data, status, headers, config) {
         $scope.busy = false;
@@ -168,7 +168,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService) {
   };
 
   $scope.togglePower = function () {
-    $scope.busy = true;
+    // $scope.busy = true;
     var newPower = $scope.power == 0 ? 1 : 0;
     $http({
       method: 'POST',
@@ -188,7 +188,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService) {
   };
 
   $scope.toggleFlipClock = function () {
-    $scope.busy = true;
+    // $scope.busy = true;
     var newFlipClock = $scope.flipClock == 0 ? 1 : 0;
     $http({
       method: 'POST',
@@ -207,7 +207,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService) {
   };
 
   $scope.getTimezone = function () {
-    $scope.busy = true;
+    // $scope.busy = true;
     $http.get('https://api.spark.io/v1/devices/' + $scope.device.id + '/timezone?access_token=' + $scope.accessToken).
       success(function (data, status, headers, config) {
         $scope.busy = false;
@@ -220,7 +220,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService) {
   };
 
   $scope.setTimezone = function ($) {
-    $scope.busy = true;
+    // $scope.busy = true;
     $http({
       method: 'POST',
       url: 'https://api.spark.io/v1/devices/' + $scope.device.id + '/variable',
@@ -239,7 +239,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService) {
   };
 
   $scope.getBrightness = function () {
-    $scope.busy = true;
+    // $scope.busy = true;
     $http.get('https://api.spark.io/v1/devices/' + $scope.device.id + '/brightness?access_token=' + $scope.accessToken).
       success(function (data, status, headers, config) {
         $scope.busy = false;
@@ -252,7 +252,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService) {
   };
 
   $scope.setBrightness = function ($) {
-    $scope.busy = true;
+    // $scope.busy = true;
     $http({
       method: 'POST',
       url: 'https://api.spark.io/v1/devices/' + $scope.device.id + '/variable',
@@ -292,7 +292,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService) {
   }
 
   $scope.setR = function ($) {
-    $scope.busy = true;
+    // $scope.busy = true;
     $http({
       method: 'POST',
       url: 'https://api.spark.io/v1/devices/' + $scope.device.id + '/variable',
@@ -311,7 +311,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService) {
   };
 
   $scope.setG = function ($) {
-    $scope.busy = true;
+    // $scope.busy = true;
     $http({
       method: 'POST',
       url: 'https://api.spark.io/v1/devices/' + $scope.device.id + '/variable',
@@ -330,7 +330,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService) {
   };
 
   $scope.setB = function ($) {
-    $scope.busy = true;
+    // $scope.busy = true;
     $http({
       method: 'POST',
       url: 'https://api.spark.io/v1/devices/' + $scope.device.id + '/variable',
@@ -349,7 +349,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService) {
   };
 
   $scope.getPatternIndex = function () {
-    $scope.busy = true;
+    // $scope.busy = true;
     $http.get('https://api.spark.io/v1/devices/' + $scope.device.id + '/patternIndex?access_token=' + $scope.accessToken).
       success(function (data, status, headers, config) {
         $scope.busy = false;
@@ -381,7 +381,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService) {
   };
 
   $scope.getPatterns = function () {
-    $scope.busy = true;
+    // $scope.busy = true;
 
     // get the pattern count
     var promise = $http.get('https://api.spark.io/v1/devices/' + $scope.device.id + '/patternCount?access_token=' + $scope.accessToken);
@@ -403,7 +403,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService) {
   };
 
   $scope.setPattern = function() {
-    $scope.busy = true;
+    // $scope.busy = true;
 
     var promise = $http({
         method: 'POST',
