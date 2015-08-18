@@ -2,6 +2,7 @@
 FASTLED_USING_NAMESPACE;
 
 #include "application.h"
+#include "math.h"
 
 #define ONE_DAY_MILLIS (24 * 60 * 60 * 1000)
 
@@ -32,7 +33,10 @@ const PatternAndNameList patterns = {
   { horizontalPaletteBlend, "Horizontal Palette Shift" },
   { spiral1,                "Spiral 1" },
   { spiral2,                "Spiral 2" },
+  { spiralPath1,            "Spiral Path 1" },
   { wave,                   "Wave" },
+  { life,                   "Life" },
+  { pulse,                  "Pulse" },
   { rainbow,                "Rainbow" },
   { rainbowWithGlitter,     "Rainbow With Glitter" },
   { confetti,               "Confetti" },
@@ -47,7 +51,7 @@ const PatternAndNameList patterns = {
   { showSolidColor,         "Solid Color" }
 };
 
-uint8_t brightness = 32;
+int brightness = 32;
 
 int patternCount = ARRAY_SIZE(patterns);
 int patternIndex = 0;
@@ -59,6 +63,8 @@ int timezone = -6;
 unsigned long lastTimeSync = millis();
 
 uint8_t gHue = 0; // rotating "base color" used by many of the patterns
+
+CRGBPalette16 icePalette = CRGBPalette16(CRGB::Black, CRGB::Blue, CRGB::Aqua, CRGB::White);
 
 uint8_t paletteIndex = 0;
 
@@ -73,6 +79,7 @@ CRGBPalette16 palettes[] = {
   HeatColors_p,
   LavaColors_p,
   PartyColors_p,
+  icePalette,
 };
 
 uint8_t paletteCount = ARRAY_SIZE(palettes);
@@ -396,8 +403,6 @@ uint8_t fire() {
     return 30;
 }
 
-CRGBPalette16 icePalette = CRGBPalette16(CRGB::Black, CRGB::Blue, CRGB::Aqua, CRGB::White);
-
 uint8_t water() {
     heatMap(icePalette, false);
     
@@ -603,6 +608,47 @@ uint8_t spiral2() {
     return 0;
 }
 
+void spiralPath(uint8_t points[], uint8_t length)
+{
+    static uint8_t currentIndex = 0;
+    
+    dimAll(255);
+    
+    leds[points[currentIndex]] = ColorFromPalette(currentPalette, gHue, 255, BLEND);
+    
+    EVERY_N_MILLIS(20)
+    {
+        currentIndex++;
+        
+        if(currentIndex >= length)
+            currentIndex = 0;
+    };
+}
+
+uint8_t spiralPath1Arms[] = 
+{
+    11, 25, 38, 51, 64, 74, 83, 65, 40, 28, 2,
+    16, 29, 42, 55, 68, 85, 56, 44, 19, 32, 45,
+    58, 70, 87, 59, 47, 22, 9, 23, 36, 49, 62,
+    72, 91, 63, 38, 13, 26, 39, 52, 65, 75, 91,
+    66, 54, 29, 3, 17, 30, 43, 56, 77, 86, 69,
+    45, 20, 7, 21, 34, 47, 60, 71, 88, 61, 49,
+    24, 37, 50, 63, 73, 82, 64, 39, 14, 1, 15,
+    28, 41, 54, 67, 76, 55, 30, 18, 31, 44, 57,
+    69, 78, 93, 70, 46, 34, 8, 22, 35, 48, 61,
+    80, 89, 90, 73, 51, 26, 0, 14, 27, 40, 53,
+    66, 84, 97, 98, 77, 57, 32, 6, 20, 33, 46,
+    59, 79, 94, 95, 80, 62, 37
+};
+
+const uint8_t spiralPath1Length = ARRAY_SIZE(spiralPath1Arms);
+
+uint8_t spiralPath1() 
+{
+    spiralPath(spiralPath1Arms, spiralPath1Length);
+    return 0;
+}
+
 // Params for width and height
 const uint8_t kMatrixWidth = 10;
 const uint8_t kMatrixHeight = 10;
@@ -732,6 +778,196 @@ uint8_t wave()
     theta++;
     
     return 0;
+}
+
+uint8_t pulse()
+{
+    dimAll(200);
+
+    uint8_t maxSteps = 16;
+    static uint8_t step = maxSteps;
+    static uint8_t centerX = 0;
+    static uint8_t centerY = 0;
+    float fadeRate = 0.8;
+
+    if (step >= maxSteps)
+    {
+        centerX = random(kMatrixWidth);
+        centerY = random(kMatrixWidth);
+        step = 0;
+    }
+    
+    if (step == 0)
+    {
+        drawCircle(centerX, centerY, step, ColorFromPalette(currentPalette, gHue, 255, BLEND));
+        step++;
+    }
+    else
+    {
+        if (step < maxSteps)
+        {
+            // initial pulse
+            drawCircle(centerX, centerY, step, ColorFromPalette(currentPalette, gHue, pow(fadeRate, step - 2) * 255, BLEND));
+            
+            // secondary pulse
+            if (step > 3) {
+                drawCircle(centerX, centerY, step - 3, ColorFromPalette(currentPalette, gHue, pow(fadeRate, step - 2) * 255, BLEND));
+            }
+        
+            step++;
+        }
+        else
+        {
+            step = -1;
+        }
+    }
+    
+    return 30;
+}
+
+// algorithm from http://en.wikipedia.org/wiki/Midpoint_circle_algorithm
+void drawCircle(uint8_t x0, uint8_t y0, uint8_t radius, const CRGB color)
+{
+    int a = radius, b = 0;
+    int radiusError = 1 - a;
+
+    if (radius == 0) {
+        setPixelXY(x0, y0, color);
+        return;
+    }
+
+    while (a >= b)
+    {
+        setPixelXY(a + x0, b + y0, color);
+        setPixelXY(b + x0, a + y0, color);
+        setPixelXY(-a + x0, b + y0, color);
+        setPixelXY(-b + x0, a + y0, color);
+        setPixelXY(-a + x0, -b + y0, color);
+        setPixelXY(-b + x0, -a + y0, color);
+        setPixelXY(a + x0, -b + y0, color);
+        setPixelXY(b + x0, -a + y0, color);
+
+        b++;
+        if (radiusError < 0)
+            radiusError += 2 * b + 1;
+        else
+        {
+            a--;
+            radiusError += 2 * (b - a + 1);
+        }
+    }
+}
+
+class Cell
+{
+    public:
+    byte alive : 1;
+    byte prev : 1;
+    byte hue: 6;  
+    byte brightness;
+};
+
+Cell world[kMatrixWidth][kMatrixHeight];
+
+uint8_t neighbors(uint8_t x, uint8_t y)
+{
+    return (world[(x + 1) % kMatrixWidth][y].prev) +
+        (world[x][(y + 1) % kMatrixHeight].prev) +
+        (world[(x + kMatrixWidth - 1) % kMatrixWidth][y].prev) +
+        (world[x][(y + kMatrixHeight - 1) % kMatrixHeight].prev) +
+        (world[(x + 1) % kMatrixWidth][(y + 1) % kMatrixHeight].prev) +
+        (world[(x + kMatrixWidth - 1) % kMatrixWidth][(y + 1) % kMatrixHeight].prev) +
+        (world[(x + kMatrixWidth - 1) % kMatrixWidth][(y + kMatrixHeight - 1) % kMatrixHeight].prev) +
+        (world[(x + 1) % kMatrixWidth][(y + kMatrixHeight - 1) % kMatrixHeight].prev);
+}
+    
+void randomFillWorld()
+{
+    static uint8_t lifeDensity = 10;
+
+    for (uint8_t i = 0; i < kMatrixWidth; i++) {
+        for (uint8_t j = 0; j < kMatrixHeight; j++) {
+            if (random(100) < lifeDensity) {
+                world[i][j].alive = 1;
+                world[i][j].brightness = 255;
+            }
+            else {
+                world[i][j].alive = 0;
+                world[i][j].brightness = 0;
+            }
+            world[i][j].prev = world[i][j].alive;
+            world[i][j].hue = 0;
+        }
+    }
+}
+
+uint8_t life()
+{
+    static uint8_t generation = 0;
+    
+    // Display current generation
+    for (uint8_t i = 0; i < kMatrixWidth; i++)
+    {
+        for (uint8_t j = 0; j < kMatrixHeight; j++)
+        {
+            setPixelXY(i, j, ColorFromPalette(currentPalette, world[i][j].hue * 4, world[i][j].brightness, BLEND));
+        }
+    }
+    
+    uint8_t liveCells = 0;
+
+    // Birth and death cycle
+    for (uint8_t x = 0; x < kMatrixWidth; x++)
+    {
+        for (uint8_t y = 0; y < kMatrixHeight; y++)
+        {
+            // Default is for cell to stay the same
+            if (world[x][y].brightness > 0 && world[x][y].prev == 0)
+              world[x][y].brightness *= 0.5;
+              
+            uint8_t count = neighbors(x, y);
+            
+            if (count == 3 && world[x][y].prev == 0)
+            {
+                // A new cell is born
+                world[x][y].alive = 1;
+                world[x][y].hue += 2;
+                world[x][y].brightness = 255;
+            }
+            else if ((count < 2 || count > 3) && world[x][y].prev == 1)
+            {
+                // Cell dies
+                world[x][y].alive = 0;
+            }
+            
+            if(world[x][y].alive)
+                liveCells++;
+        }
+    }
+    
+    // Copy next generation into place
+    for (uint8_t x = 0; x < kMatrixWidth; x++)
+    {
+        for (uint8_t y = 0; y < kMatrixHeight; y++)
+        {
+            world[x][y].prev = world[x][y].alive;
+        }
+    }
+
+    if (liveCells < 4 || generation >= 128)
+    {
+        fill_solid(leds, NUM_LEDS, CRGB::Black);
+
+        randomFillWorld();
+        
+        generation = 0;
+    }
+    else
+    {
+        generation++;
+    }
+
+    return 60;
 }
 
 void heatMap(CRGBPalette16 palette, bool up) {
