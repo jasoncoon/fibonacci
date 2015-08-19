@@ -28,6 +28,11 @@ typedef PatternAndName PatternAndNameList[];
 
 const PatternAndNameList patterns = { 
   { pride,                  "Pride" },
+  { horizontalRainbow,      "Horizontal Rainbow" },
+  { verticalRainbow,        "Vertical Rainbow" },
+  { diagonalRainbow,        "Diagonal Rainbow" },
+  { noise,                  "Noise 1" },
+  { yinYang,                "Yin & Yang" },
   { radialPaletteShift,     "Radial Palette Shift" },
   { verticalPaletteBlend,   "Vertical Palette Shift" },
   { horizontalPaletteBlend, "Horizontal Palette Shift" },
@@ -64,7 +69,7 @@ unsigned long lastTimeSync = millis();
 
 uint8_t gHue = 0; // rotating "base color" used by many of the patterns
 
-CRGBPalette16 icePalette = CRGBPalette16(CRGB::Black, CRGB::Blue, CRGB::Aqua, CRGB::White);
+CRGBPalette16 IceColors_p = CRGBPalette16(CRGB::Black, CRGB::Blue, CRGB::Aqua, CRGB::White);
 
 uint8_t paletteIndex = 0;
 
@@ -79,7 +84,7 @@ CRGBPalette16 palettes[] = {
   HeatColors_p,
   LavaColors_p,
   PartyColors_p,
-  icePalette,
+  IceColors_p,
 };
 
 uint8_t paletteCount = ARRAY_SIZE(palettes);
@@ -99,6 +104,7 @@ int offlinePin = D7;
 void setup() {
     FastLED.addLeds<LED_TYPE,DATA_PIN,CLK_PIN>(leds, NUM_LEDS);
     FastLED.setBrightness(brightness);
+    FastLED.setDither(false);
     fill_solid(leds, NUM_LEDS, CRGB::Blue);
     FastLED.show();
     
@@ -118,7 +124,7 @@ void setup() {
         brightness = 255;
     
     FastLED.setBrightness(brightness);
-    FastLED.setDither(brightness < 255);
+    // FastLED.setDither(brightness < 255);
     
     uint8_t timezoneSign = EEPROM.read(1);
     if(timezoneSign < 1)
@@ -175,16 +181,16 @@ void setup() {
 
 void loop() {
     if (Spark.connected() && millis() - lastTimeSync > ONE_DAY_MILLIS) {
-    // Request time synchronization from the Spark Cloud
-    Spark.syncTime();
-    lastTimeSync = millis();
+        // Request time synchronization from the Spark Cloud
+        Spark.syncTime();
+        lastTimeSync = millis();
     }
     
     if(power < 1) {
-      fill_solid(leds, NUM_LEDS, CRGB::Black);
-      FastLED.show();
-      FastLED.delay(250);
-      return;
+        fill_solid(leds, NUM_LEDS, CRGB::Black);
+        FastLED.show();
+        FastLED.delay(15);
+        return;
     }
     
     uint8_t delay = patterns[patternIndex].drawFrame();
@@ -266,7 +272,7 @@ int setBrightness(String args)
         brightness = 255;
         
     FastLED.setBrightness(brightness);
-    FastLED.setDither(brightness < 255);
+    // FastLED.setDither(brightness < 255);
     
     EEPROM.write(0, brightness);
     
@@ -404,7 +410,7 @@ uint8_t fire() {
 }
 
 uint8_t water() {
-    heatMap(icePalette, false);
+    heatMap(IceColors_p, false);
     
     return 30;
 }
@@ -563,19 +569,19 @@ uint8_t spiral2Arms[spiral2Count][spiral2Length] = {
 };
 
 template <size_t armCount, size_t armLength>
-void fillSpiral(uint8_t (&spiral)[armCount][armLength], bool reverse) {
-    fill_solid(leds, NUM_LEDS, ColorFromPalette(currentPalette, 0, 255, BLEND));
+void fillSpiral(uint8_t (&spiral)[armCount][armLength], bool reverse, CRGBPalette16 palette) {
+    fill_solid(leds, NUM_LEDS, ColorFromPalette(palette, 0, 255, BLEND));
     
-    byte offset = 0;
+    byte offset = 255 / armCount;
     static byte hue = 0;
     
     for(uint8_t i = 0; i < armCount; i++) {
         CRGB color;
         
         if(reverse)
-            color = ColorFromPalette(currentPalette, hue + offset, 255, BLEND);
+            color = ColorFromPalette(palette, hue + offset, 255, BLEND);
         else
-            color = ColorFromPalette(currentPalette, hue - offset, 255, BLEND);
+            color = ColorFromPalette(palette, hue - offset, 255, BLEND);
         
         for(uint8_t j = 0; j < armLength; j++) {
             leds[spiral[i][j]] = color;
@@ -597,15 +603,24 @@ void fillSpiral(uint8_t (&spiral)[armCount][armLength], bool reverse) {
 }
 
 uint8_t spiral1() {
-    fillSpiral(spiral1Arms, false);
+    fillSpiral(spiral1Arms, false, currentPalette);
     
     return 0;
 }
 
 uint8_t spiral2() {
-    fillSpiral(spiral2Arms, true);
+    fillSpiral(spiral2Arms, true, currentPalette);
     
     return 0;
+}
+
+CRGBPalette16 FireVsWaterColors_p = CRGBPalette16(
+    CRGB::White, CRGB::Red, CRGB::Red, CRGB::Red, CRGB::Red, CRGB::Red, CRGB::Red, CRGB::Red, 
+    CRGB::White, CRGB::Blue, CRGB::Blue, CRGB::Blue, CRGB::Blue, CRGB::Blue, CRGB::Blue, CRGB::Blue);
+
+uint8_t yinYang()
+{
+    fillSpiral(spiral1Arms, false, FireVsWaterColors_p);
 }
 
 void spiralPath(uint8_t points[], uint8_t length)
@@ -717,12 +732,125 @@ uint8_t verticalPaletteBlend()
     return 15;
 }
 
+const uint8_t coordsX[NUM_LEDS] = {
+    135, 180, 236, 255, 253, 210, 143, 98, 37, 7,
+    0, 32, 64, 93, 160, 200, 240, 243, 234, 182,
+    116, 75, 28, 6, 15, 58, 120, 179, 214, 237,
+    226, 210, 155, 95, 59, 27, 14, 36, 85, 142,
+    191, 219, 227, 206, 186, 132, 81, 50, 32, 27,
+    60, 109, 159, 195, 217, 212, 183, 162, 113, 74,
+    50, 46, 46, 83, 128, 169, 191, 207, 193, 141,
+    101, 57, 67, 104, 142, 169, 190, 161, 126, 76,
+    64, 89, 122, 146, 176, 170, 142, 99, 73, 87,
+    112, 155, 165, 119, 90, 100, 130, 137, 142, 116
+};
+
+const uint8_t coordsY[NUM_LEDS] = {
+    255, 250, 201, 132, 86, 28, 3, 0, 37, 73,
+    146, 209, 242, 246, 242, 229, 174, 106, 64, 21,
+    12, 18, 65, 102, 171, 220, 239, 224, 204, 145,
+    86, 50, 22, 28, 39, 92, 128, 187, 224, 228,
+    202, 179, 122, 72, 43, 30, 47, 63, 115, 151,
+    198, 220, 212, 178, 154, 104, 66, 43, 44, 69,
+    87, 135, 167, 201, 208, 191, 156, 133, 94, 52,
+    62, 109, 175, 195, 191, 169, 120, 70, 68, 91,
+    148, 174, 180, 166, 138, 93, 84, 85, 125, 151,
+    160, 144, 113, 94, 112, 132, 148, 127, 107, 116
+};
+
+CRGB scrollingHorizontalWashColor( uint8_t x, uint8_t y, unsigned long timeInMillis) {
+    return CHSV( x + (timeInMillis / 100), 255, 255);
+}
+
+uint8_t horizontalRainbow() {
+    unsigned long t = millis();
+    
+    for(uint8_t i = 0; i < NUM_LEDS; i++) {
+        leds[i] = scrollingHorizontalWashColor(coordsX[i], coordsY[i], t);
+    }
+    
+    return 0;
+}
+
+CRGB scrollingVerticalWashColor( uint8_t x, uint8_t y, unsigned long timeInMillis) {
+    return CHSV( y + (timeInMillis / 100), 255, 255);
+}
+
+uint8_t verticalRainbow() {
+    unsigned long t = millis();
+    
+    for(uint8_t i = 0; i < NUM_LEDS; i++) {
+        leds[i] = scrollingVerticalWashColor(coordsX[i], coordsY[i], t);
+    }
+    
+    return 0;
+}
+
+CRGB scrollingDiagonalWashColor( uint8_t x, uint8_t y, unsigned long timeInMillis) {
+    return CHSV( x + y + (timeInMillis / 100), 255, 255);
+}
+
+uint8_t diagonalRainbow() {
+    unsigned long t = millis();
+    
+    for(uint8_t i = 0; i < NUM_LEDS; i++) {
+        leds[i] = scrollingDiagonalWashColor(coordsX[i], coordsY[i], t);
+    }
+    
+    return 0;
+}
+
+// We're using the x/y dimensions to map to the x/y pixels on the matrix.  We'll
+// use the z-axis for "time".  speed determines how fast time moves forward.  Try
+// 1 for a very slow moving effect, or 60 for something that ends up looking like
+// water.
+uint16_t speed = 1; // speed is set dynamically once we've started up
+
+// Scale determines how far apart the pixels in our noise matrix are.  Try
+// changing these values around to see how it affects the motion of the display.  The
+// higher the value of scale, the more "zoomed out" the noise iwll be.  A value
+// of 1 will be so zoomed in, you'll mostly see solid colors.
+uint16_t scale = 1; // scale is set dynamically once we've started up
+
+static uint16_t noiseX;
+static uint16_t noiseY;
+static uint16_t noiseZ;
+
+uint8_t noise() {
+    for(uint8_t i = 0; i < NUM_LEDS; i++) {
+        uint8_t x = coordsX[i];
+        uint8_t y = coordsY[i];
+        
+        int xoffset = scale * x;
+        int yoffset = scale * y;
+        
+        uint8_t data = inoise8(x + xoffset + noiseX, y + yoffset + noiseY, noiseZ);
+        
+        // The range of the inoise8 function is roughly 16-238.
+        // These two operations expand those values out to roughly 0..255
+        // You can comment them out if you want the raw noise data.
+        data = qsub8(data,16);
+        data = qadd8(data,scale8(data,39));
+        
+        leds[i] = ColorFromPalette(currentPalette, data, 255, BLEND);
+    }
+    
+    noiseZ += speed;
+  
+    // apply slow drift to X and Y, just for visual variation.
+    noiseX += speed / 8;
+    noiseY -= speed / 16;
+  
+    return 0;
+}
+
 const uint8_t maxX = kMatrixWidth - 1;
 const uint8_t maxY = kMatrixHeight - 1;
-const uint8_t scale = 256 / kMatrixWidth;
 
 uint8_t wave()
 {
+    const uint8_t scale = 256 / kMatrixWidth;
+
     static uint8_t rotation = 0;
     static uint8_t theta = 0;
     static uint8_t waveCount = 1;
