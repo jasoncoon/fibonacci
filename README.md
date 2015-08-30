@@ -1,7 +1,9 @@
 # Fibonacci Lamp
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/E0JwAUGXpuo?list=PLUYGVM-2vDxLknPGYbSdxxwOq1qUHfaos" frameborder="0" allowfullscreen></iframe>
-            
+[Demo Videos](https://www.youtube.com/watch?v=E0JwAUGXpuo&index=3&list=PLUYGVM-2vDxLknPGYbSdxxwOq1qUHfaos):
+
+[![Demo Videos](http://img.youtube.com/vi/E0JwAUGXpuo/0.jpg)](https://www.youtube.com/watch?v=E0JwAUGXpuo&index=3&list=PLUYGVM-2vDxLknPGYbSdxxwOq1qUHfaos)
+
 Build your own, or buy one from Evil Genius Labs: http://www.evilgeniuslabs.org
 
 Created using a Spark Core, 100 x WS2801 RGB LEDs, and the FastLED library.
