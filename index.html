@@ -128,6 +128,46 @@
         </div>
       </div>
 
+      <div class="form-group">
+        <label for="inputNoiseSpeedX" class="col-sm-2 control-label">Noise Speed X</label>
+        <div class="input-group col-sm-6">
+          <input ng-model="noiseSpeedX" class="form-control" id="inputNoiseSpeedX" type="number" min="0" max="255" ng-disabled="busy || disconnected" />
+          <span class="input-group-btn">
+            <button class="btn" id="btnSetNoiseSpeedX" ng-click="setNoiseSpeedX()" ng-disabled="busy || disconnected">Set</button>
+          </span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="inputNoiseSpeedY" class="col-sm-2 control-label">Noise Speed Y</label>
+        <div class="input-group col-sm-6">
+          <input ng-model="noiseSpeedY" class="form-control" id="inputNoiseSpeedY" type="number" min="0" max="255" ng-disabled="busy || disconnected" />
+          <span class="input-group-btn">
+            <button class="btn" id="btnSetNoiseSpeedY" ng-click="setNoiseSpeedY()" ng-disabled="busy || disconnected">Set</button>
+          </span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="inputNoiseSpeedZ" class="col-sm-2 control-label">Noise Speed Z</label>
+        <div class="input-group col-sm-6">
+          <input ng-model="noiseSpeedZ" class="form-control" id="inputNoiseSpeedZ" type="number" min="0" max="255" ng-disabled="busy || disconnected" />
+          <span class="input-group-btn">
+            <button class="btn" id="btnSetNoiseSpeedZ" ng-click="setNoiseSpeedZ()" ng-disabled="busy || disconnected">Set</button>
+          </span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="inputNoiseScale" class="col-sm-2 control-label">Noise Scale</label>
+        <div class="input-group col-sm-6">
+          <input ng-model="noiseScale" class="form-control" id="inputNoiseScale" type="number" min="0" max="255" ng-disabled="busy || disconnected" />
+          <span class="input-group-btn">
+            <button class="btn" id="btnSetNoiseScale" ng-click="setNoiseScale()" ng-disabled="busy || disconnected">Set</button>
+          </span>
+        </div>
+      </div>
+
     </form>
   </div>
   <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>

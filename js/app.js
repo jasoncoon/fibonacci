@@ -10,7 +10,7 @@ app.config(function ($httpProvider) {
   $httpProvider.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;';
 });
 
-app.controller('MainCtrl', function ($scope, $http, $timeout, patternService) {
+app.controller('MainCtrl', function ($scope, $http, $timeout, patternService, variableService) {
   $scope.brightness = "";
   $scope.busy = false;
   // $scope.pattern = "";
@@ -21,6 +21,10 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService) {
   $scope.r = 0;
   $scope.g = 0;
   $scope.b = 255;
+  $scope.noiseSpeedX = 0;
+  $scope.noiseSpeedY = 0;
+  $scope.noiseSpeedZ = 0;
+  $scope.noiseScale = 0;
   $scope.powerText = "On";
   $scope.status = "Please enter your access token.";
   $scope.disconnected = false;
@@ -121,36 +125,55 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService) {
         $scope.status = data.error_description;
       });
 
-    $http.get('https://api.particle.io/v1/devices/' + $scope.device.id + '/r?access_token=' + $scope.accessToken).
-      success(function (data, status, headers, config) {
-        $scope.r = data.result;
-        $scope.status = 'Loaded red';
-      }).
-      error(function (data, status, headers, config) {
-        $scope.busy = false;
-        $scope.status = data.error_description;
-      });
-
-    $http.get('https://api.particle.io/v1/devices/' + $scope.device.id + '/g?access_token=' + $scope.accessToken).
-      success(function (data, status, headers, config) {
-        $scope.g = data.result;
-        $scope.status = 'Loaded green';
-      }).
-      error(function (data, status, headers, config) {
-        $scope.busy = false;
-        $scope.status = data.error_description;
-      });
-
-    $http.get('https://api.particle.io/v1/devices/' + $scope.device.id + '/b?access_token=' + $scope.accessToken).
-      success(function (data, status, headers, config) {
-        $scope.b = data.result;
-        $scope.status = 'Loaded blue';
-      }).
-      error(function (data, status, headers, config) {
-        $scope.busy = false;
-        $scope.status = data.error_description;
-      });
-
+	variableService.getVariableValue("r", $scope.device.id, $scope.accessToken)
+	.then(function(payload)
+	{
+		$scope.r = payload.data.result;
+		$scope.status = 'Loaded red';
+	});
+		
+	variableService.getVariableValue("g", $scope.device.id, $scope.accessToken)
+	.then( function(payload)
+	{
+		$scope.g = payload.data.result;
+		$scope.status = 'Loaded green';
+	})
+		  
+	variableService.getVariableValue("b", $scope.device.id, $scope.accessToken)
+    .then(
+	function(payload) {
+		$scope.b = payload.data.result;
+		$scope.status = 'Loaded blue';
+	});
+		  
+	variableService.getVariableValue("nsx", $scope.device.id, $scope.accessToken)
+    .then(
+	function(payload) {
+		$scope.noiseSpeedX = payload.data.result;
+		$scope.status = 'Loaded noise speed x';
+	});
+		  
+	variableService.getVariableValue("nsy", $scope.device.id, $scope.accessToken)
+    .then(
+	function(payload) {
+		$scope.noiseSpeedY = payload.data.result;
+		$scope.status = 'Loaded noise speed y';
+	});
+		  
+	variableService.getVariableValue("nsz", $scope.device.id, $scope.accessToken)
+    .then(
+	function(payload) {
+		$scope.noiseSpeedZ = payload.data.result;
+		$scope.status = 'Loaded noise speed z';
+	});
+		  
+	variableService.getVariableValue("nsc", $scope.device.id, $scope.accessToken)
+    .then(
+	function(payload) {
+		$scope.noiseScale = payload.data.result;
+		$scope.status = 'Loaded noise scale';
+	});
+		  
     $scope.getPatterns();
   }
 
@@ -348,6 +371,82 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService) {
     });
   };
 
+  $scope.setNoiseSpeedX = function ($) {
+    // $scope.busy = true;
+    $http({
+      method: 'POST',
+      url: 'https://api.particle.io/v1/devices/' + $scope.device.id + '/variable',
+      data: { access_token: $scope.accessToken, args: "nsx:" + $scope.noiseSpeedX },
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    }).
+    success(function (data, status, headers, config) {
+      $scope.busy = false;
+      $scope.noiseSpeedX = data.return_value;
+      $scope.status = 'noiseSpeedX set';
+    }).
+    error(function (data, status, headers, config) {
+      $scope.busy = false;
+        $scope.status = data.error_description;
+    });
+  };
+
+  $scope.setNoiseSpeedY = function ($) {
+    // $scope.busy = true;
+    $http({
+      method: 'POST',
+      url: 'https://api.particle.io/v1/devices/' + $scope.device.id + '/variable',
+      data: { access_token: $scope.accessToken, args: "nsy:" + $scope.noiseSpeedY },
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    }).
+    success(function (data, status, headers, config) {
+      $scope.busy = false;
+      $scope.noiseSpeedY = data.return_value;
+      $scope.status = 'noiseSpeedY set';
+    }).
+    error(function (data, status, headers, config) {
+      $scope.busy = false;
+        $scope.status = data.error_description;
+    });
+  };
+
+  $scope.setNoiseSpeedZ = function ($) {
+    // $scope.busy = true;
+    $http({
+      method: 'POST',
+      url: 'https://api.particle.io/v1/devices/' + $scope.device.id + '/variable',
+      data: { access_token: $scope.accessToken, args: "nsz:" + $scope.noiseSpeedZ },
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    }).
+    success(function (data, status, headers, config) {
+      $scope.busy = false;
+      $scope.noiseSpeedZ = data.return_value;
+      $scope.status = 'noiseSpeedZ set';
+    }).
+    error(function (data, status, headers, config) {
+      $scope.busy = false;
+        $scope.status = data.error_description;
+    });
+  };
+
+  $scope.setNoiseScale = function ($) {
+    // $scope.busy = true;
+    $http({
+      method: 'POST',
+      url: 'https://api.particle.io/v1/devices/' + $scope.device.id + '/variable',
+      data: { access_token: $scope.accessToken, args: "nsc:" + $scope.noiseScale },
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    }).
+    success(function (data, status, headers, config) {
+      $scope.busy = false;
+      $scope.noiseScale = data.return_value;
+      $scope.status = 'noiseScale set';
+    }).
+    error(function (data, status, headers, config) {
+      $scope.busy = false;
+        $scope.status = data.error_description;
+    });
+  };
+
   $scope.getPatternIndex = function () {
     // $scope.busy = true;
     $http.get('https://api.particle.io/v1/devices/' + $scope.device.id + '/patternIndex?access_token=' + $scope.accessToken).
@@ -427,13 +526,30 @@ app.factory('patternService', function ($http) {
     getPatternName: function (index, deviceId, accessToken) {
       return $http({
         method: 'POST',
-        url: 'https://api.particle.io/v1/devices/' + deviceId + '/patternName',
+        url: 'https://api.particle.io/v1/devices/' + deviceId + '/pNameCursor',
         data: { access_token: accessToken, args: index },
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
       })
         .then(
         function (payload) {
           return $http.get('https://api.particle.io/v1/devices/' + deviceId + '/patternName?access_token=' + accessToken);
+        });
+    }
+  }
+});
+
+app.factory('variableService', function ($http) {
+  return {
+    getVariableValue: function (variableName, deviceId, accessToken) {
+      return $http({
+        method: 'POST',
+        url: 'https://api.particle.io/v1/devices/' + deviceId + '/varCursor',
+        data: { access_token: accessToken, args: variableName },
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      })
+        .then(
+        function (payload) {
+          return $http.get('https://api.particle.io/v1/devices/' + deviceId + '/variable?access_token=' + accessToken);
         });
     }
   }
