@@ -85,94 +85,95 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService, va
 
     localStorage["deviceId"] = $scope.device.id;
 
-    $http.get('https://api.particle.io/v1/devices/' + $scope.device.id + '/power?access_token=' + $scope.accessToken).
-      success(function (data, status, headers, config) {
-        $scope.power = data.result;
-        $scope.status = 'Loaded power';
-      }).
-      error(function (data, status, headers, config) {
-        $scope.busy = false;
-        $scope.status = data.error_description;
-      });
+    variableService.getVariableValue("power", $scope.device.id, $scope.accessToken)
+    .then(function (data) {
+      $scope.power = data.result;
+      $scope.status = 'Loaded power';
+    })
 
-    $http.get('https://api.particle.io/v1/devices/' + $scope.device.id + '/timezone?access_token=' + $scope.accessToken).
-      success(function (data, status, headers, config) {
-        $scope.timezone = data.result;
-        $scope.status = 'Loaded time zone';
-      }).
-      error(function (data, status, headers, config) {
-        $scope.busy = false;
-        $scope.status = data.error_description;
-      });
+    .then(function (data) {
+      return variableService.getVariableValue("timezone", $scope.device.id, $scope.accessToken);
+    })
+    .then(function (data) {
+      $scope.timezone = data.result;
+      $scope.status = 'Loaded time zone';
+    })
 
-    $http.get('https://api.particle.io/v1/devices/' + $scope.device.id + '/brightness?access_token=' + $scope.accessToken).
-      success(function (data, status, headers, config) {
-        $scope.brightness = data.result;
-        $scope.status = 'Loaded brightness';
-      }).
-      error(function (data, status, headers, config) {
-        $scope.busy = false;
-        $scope.status = data.error_description;
-      });
+    .then(function (data) {
+      return variableService.getVariableValue("brightness", $scope.device.id, $scope.accessToken);
+    })
+    .then(function (data) {
+      $scope.brightness = data.result;
+      $scope.status = 'Loaded brightness';
+    })
+    
+    .then(function (data) {
+      return variableService.getVariableValue("flipClock", $scope.device.id, $scope.accessToken);
+    })
+    .then(function (data) {
+      $scope.flipClock = data.result;
+      $scope.status = 'Loaded clock orientation';
+    })
 
-    $http.get('https://api.particle.io/v1/devices/' + $scope.device.id + '/flipClock?access_token=' + $scope.accessToken).
-      success(function (data, status, headers, config) {
-        $scope.flipClock = data.result;
-        $scope.status = 'Loaded clock orientation';
-      }).
-      error(function (data, status, headers, config) {
-        $scope.busy = false;
-        $scope.status = data.error_description;
-      });
-
-    variableService.getVariableValue("r", $scope.device.id, $scope.accessToken)
-    .then(function (value) {
-      $scope.r = value;
+    .then(function (data) {
+      return variableService.getExtendedVariableValue("r", $scope.device.id, $scope.accessToken);
+    })
+    .then(function (data) {
+      $scope.r = data.return_value;
       $scope.status = 'Loaded red';
-    });
+    })
 
-    variableService.getVariableValue("g", $scope.device.id, $scope.accessToken)
-    .then(function (value) {
-      $scope.g = value;
+    .then(function (data) {
+      return variableService.getExtendedVariableValue("g", $scope.device.id, $scope.accessToken);
+    })
+    .then(function (data) {
+      $scope.g = data.return_value;
       $scope.status = 'Loaded green';
     })
 
-    variableService.getVariableValue("b", $scope.device.id, $scope.accessToken)
-      .then(
-    function (value) {
-      $scope.b = value;
+    .then(function (data) {
+      return variableService.getExtendedVariableValue("b", $scope.device.id, $scope.accessToken);
+    })
+    .then(function (data) {
+      $scope.b = data.return_value;
       $scope.status = 'Loaded blue';
-    });
+    })
 
-    variableService.getVariableValue("nsx", $scope.device.id, $scope.accessToken)
-      .then(
-    function (value) {
-      $scope.noiseSpeedX = value;
+    .then(function (data) {
+      return variableService.getExtendedVariableValue("nsx", $scope.device.id, $scope.accessToken);
+    })
+    .then(function (data) {
+      $scope.noiseSpeedX = data.return_value;
       $scope.status = 'Loaded noise speed x';
-    });
+    })
 
-    variableService.getVariableValue("nsy", $scope.device.id, $scope.accessToken)
-      .then(
-    function (value) {
-      $scope.noiseSpeedY = value;
+    .then(function (data) {
+      return variableService.getExtendedVariableValue("nsy", $scope.device.id, $scope.accessToken);
+    })
+    .then(function (data) {
+      $scope.noiseSpeedY = data.return_value;
       $scope.status = 'Loaded noise speed y';
-    });
+    })
 
-    variableService.getVariableValue("nsz", $scope.device.id, $scope.accessToken)
-      .then(
-    function (value) {
-      $scope.noiseSpeedZ = value;
+    .then(function (data) {
+      return variableService.getExtendedVariableValue("nsz", $scope.device.id, $scope.accessToken);
+    })
+    .then(function (data) {
+      $scope.noiseSpeedZ = data.return_value;
       $scope.status = 'Loaded noise speed z';
-    });
+    })
 
-    variableService.getVariableValue("nsc", $scope.device.id, $scope.accessToken)
-      .then(
-    function (value) {
-      $scope.noiseScale = value;
+    .then(function (data) {
+      return variableService.getExtendedVariableValue("nsc", $scope.device.id, $scope.accessToken);
+    })
+    .then(function (data) {
+      $scope.noiseScale = data.return_value;
       $scope.status = 'Loaded noise scale';
-    });
+    })
 
-    $scope.getPatterns();
+    .then(function (data) {
+      $scope.getPatterns();
+    });
   }
 
   $scope.getPower = function () {
@@ -511,10 +512,10 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService, va
 	  .then(
 	    function (payload) {
 	      $scope.busy = false;
-  	    $scope.status = 'Pattern set';
+	      $scope.status = 'Pattern set';
 	    },
 	    function (errorPayload) {
-  	    $scope.busy = false;
+	      $scope.busy = false;
 	    });
   };
 });
@@ -540,15 +541,17 @@ app.factory('variableService', function ($http) {
   return {
     getVariableValue: function (variableName, deviceId, accessToken) {
       return $http({
+        method: 'GET',
+        url: 'https://api.particle.io/v1/devices/' + deviceId + '/' + variableName + '?access_token=' + accessToken,
+      });
+    },
+
+    getExtendedVariableValue: function (variableName, deviceId, accessToken) {
+      return $http({
         method: 'POST',
         url: 'https://api.particle.io/v1/devices/' + deviceId + '/varCursor',
         data: { access_token: accessToken, args: variableName },
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-      })
-      .then(
-      function (payload) {
-        return payload.return_value;
-        //return $http.get('https://api.particle.io/v1/devices/' + deviceId + '/variable?access_token=' + accessToken);
       });
     }
   }
