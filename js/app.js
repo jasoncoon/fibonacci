@@ -86,88 +86,88 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService, va
     localStorage["deviceId"] = $scope.device.id;
 
     variableService.getVariableValue("power", $scope.device.id, $scope.accessToken)
-    .then(function (data) {
-      $scope.power = data.result;
+    .then(function (response) {
+      $scope.power = response.data.result;
       $scope.status = 'Loaded power';
     })
 
     .then(function (data) {
       return variableService.getVariableValue("timezone", $scope.device.id, $scope.accessToken);
     })
-    .then(function (data) {
-      $scope.timezone = data.result;
+    .then(function (response) {
+      $scope.timezone = response.data.result;
       $scope.status = 'Loaded time zone';
     })
 
     .then(function (data) {
       return variableService.getVariableValue("brightness", $scope.device.id, $scope.accessToken);
     })
-    .then(function (data) {
-      $scope.brightness = data.result;
+    .then(function (response) {
+      $scope.brightness = response.data.result;
       $scope.status = 'Loaded brightness';
     })
     
     .then(function (data) {
       return variableService.getVariableValue("flipClock", $scope.device.id, $scope.accessToken);
     })
-    .then(function (data) {
-      $scope.flipClock = data.result;
+    .then(function (response) {
+      $scope.flipClock = response.data.result;
       $scope.status = 'Loaded clock orientation';
     })
 
     .then(function (data) {
       return variableService.getExtendedVariableValue("r", $scope.device.id, $scope.accessToken);
     })
-    .then(function (data) {
-      $scope.r = data.return_value;
+    .then(function (response) {
+      $scope.r = response.data.return_value;
       $scope.status = 'Loaded red';
     })
 
     .then(function (data) {
       return variableService.getExtendedVariableValue("g", $scope.device.id, $scope.accessToken);
     })
-    .then(function (data) {
-      $scope.g = data.return_value;
+    .then(function (response) {
+      $scope.g = response.data.return_value;
       $scope.status = 'Loaded green';
     })
 
     .then(function (data) {
       return variableService.getExtendedVariableValue("b", $scope.device.id, $scope.accessToken);
     })
-    .then(function (data) {
-      $scope.b = data.return_value;
+    .then(function (response) {
+      $scope.b = response.data.return_value;
       $scope.status = 'Loaded blue';
     })
 
     .then(function (data) {
       return variableService.getExtendedVariableValue("nsx", $scope.device.id, $scope.accessToken);
     })
-    .then(function (data) {
-      $scope.noiseSpeedX = data.return_value;
+    .then(function (response) {
+      $scope.noiseSpeedX = response.data.return_value;
       $scope.status = 'Loaded noise speed x';
     })
 
     .then(function (data) {
       return variableService.getExtendedVariableValue("nsy", $scope.device.id, $scope.accessToken);
     })
-    .then(function (data) {
-      $scope.noiseSpeedY = data.return_value;
+    .then(function (response) {
+      $scope.noiseSpeedY = response.data.return_value;
       $scope.status = 'Loaded noise speed y';
     })
 
     .then(function (data) {
       return variableService.getExtendedVariableValue("nsz", $scope.device.id, $scope.accessToken);
     })
-    .then(function (data) {
-      $scope.noiseSpeedZ = data.return_value;
+    .then(function (response) {
+      $scope.noiseSpeedZ = response.data.return_value;
       $scope.status = 'Loaded noise speed z';
     })
 
     .then(function (data) {
       return variableService.getExtendedVariableValue("nsc", $scope.device.id, $scope.accessToken);
     })
-    .then(function (data) {
-      $scope.noiseScale = data.return_value;
+    .then(function (response) {
+      $scope.noiseScale = response.data.return_value;
       $scope.status = 'Loaded noise scale';
     })
 
