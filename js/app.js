@@ -35,26 +35,26 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService, va
 
   $scope.devices = [];
 
-  $scope.getDevices = function() {
+  $scope.getDevices = function () {
     $scope.status = 'Getting devices...';
 
     $http.get('https://api.particle.io/v1/devices?access_token=' + $scope.accessToken).
       success(function (data, status, headers, config) {
         $scope.devices = data;
-        if(data && data.length > 0) {
-          if(Modernizr.localstorage) {
+        if (data && data.length > 0) {
+          if (Modernizr.localstorage) {
             var deviceId = localStorage["deviceId"];
-            if(deviceId) {
-              for(var i = 0; i < data.length; i++) {
-                if(data[i].id == deviceId) {
-                 $scope.device = data[i] ;
-                 break;
+            if (deviceId) {
+              for (var i = 0; i < data.length; i++) {
+                if (data[i].id == deviceId) {
+                  $scope.device = data[i];
+                  break;
                 }
               }
             }
           }
 
-          if(!$scope.device)
+          if (!$scope.device)
             $scope.device = data[0];
         }
         $scope.status = 'Loaded devices';
@@ -69,7 +69,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService, va
     $scope.accessToken = localStorage["accessToken"];
     // $('#inputAccessToken').scope().$apply();
 
-    if($scope.accessToken && $scope.accessToken != "") {
+    if ($scope.accessToken && $scope.accessToken != "") {
       $scope.status = "";
       $scope.getDevices();
     }
@@ -80,7 +80,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService, va
     $scope.status = "Saved access token.";
   }
 
-  $scope.connect = function() {
+  $scope.connect = function () {
     // $scope.busy = true;
 
     localStorage["deviceId"] = $scope.device.id;
@@ -125,55 +125,53 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService, va
         $scope.status = data.error_description;
       });
 
-	variableService.getVariableValue("r", $scope.device.id, $scope.accessToken)
-	.then(function(payload)
-	{
-		$scope.r = payload.data.result;
-		$scope.status = 'Loaded red';
-	});
-		
-	variableService.getVariableValue("g", $scope.device.id, $scope.accessToken)
-	.then( function(payload)
-	{
-		$scope.g = payload.data.result;
-		$scope.status = 'Loaded green';
-	})
-		  
-	variableService.getVariableValue("b", $scope.device.id, $scope.accessToken)
-    .then(
-	function(payload) {
-		$scope.b = payload.data.result;
-		$scope.status = 'Loaded blue';
-	});
-		  
-	variableService.getVariableValue("nsx", $scope.device.id, $scope.accessToken)
-    .then(
-	function(payload) {
-		$scope.noiseSpeedX = payload.data.result;
-		$scope.status = 'Loaded noise speed x';
-	});
-		  
-	variableService.getVariableValue("nsy", $scope.device.id, $scope.accessToken)
-    .then(
-	function(payload) {
-		$scope.noiseSpeedY = payload.data.result;
-		$scope.status = 'Loaded noise speed y';
-	});
-		  
-	variableService.getVariableValue("nsz", $scope.device.id, $scope.accessToken)
-    .then(
-	function(payload) {
-		$scope.noiseSpeedZ = payload.data.result;
-		$scope.status = 'Loaded noise speed z';
-	});
-		  
-	variableService.getVariableValue("nsc", $scope.device.id, $scope.accessToken)
-    .then(
-	function(payload) {
-		$scope.noiseScale = payload.data.result;
-		$scope.status = 'Loaded noise scale';
-	});
-		  
+    variableService.getVariableValue("r", $scope.device.id, $scope.accessToken)
+    .then(function (value) {
+      $scope.r = value;
+      $scope.status = 'Loaded red';
+    });
+
+    variableService.getVariableValue("g", $scope.device.id, $scope.accessToken)
+    .then(function (value) {
+      $scope.g = value;
+      $scope.status = 'Loaded green';
+    })
+
+    variableService.getVariableValue("b", $scope.device.id, $scope.accessToken)
+      .then(
+    function (value) {
+      $scope.b = value;
+      $scope.status = 'Loaded blue';
+    });
+
+    variableService.getVariableValue("nsx", $scope.device.id, $scope.accessToken)
+      .then(
+    function (value) {
+      $scope.noiseSpeedX = value;
+      $scope.status = 'Loaded noise speed x';
+    });
+
+    variableService.getVariableValue("nsy", $scope.device.id, $scope.accessToken)
+      .then(
+    function (value) {
+      $scope.noiseSpeedY = value;
+      $scope.status = 'Loaded noise speed y';
+    });
+
+    variableService.getVariableValue("nsz", $scope.device.id, $scope.accessToken)
+      .then(
+    function (value) {
+      $scope.noiseSpeedZ = value;
+      $scope.status = 'Loaded noise speed z';
+    });
+
+    variableService.getVariableValue("nsc", $scope.device.id, $scope.accessToken)
+      .then(
+    function (value) {
+      $scope.noiseScale = value;
+      $scope.status = 'Loaded noise scale';
+    });
+
     $scope.getPatterns();
   }
 
@@ -257,7 +255,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService, va
     }).
     error(function (data, status, headers, config) {
       $scope.busy = false;
-        $scope.status = data.error_description;
+      $scope.status = data.error_description;
     });
   };
 
@@ -289,7 +287,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService, va
     }).
     error(function (data, status, headers, config) {
       $scope.busy = false;
-        $scope.status = data.error_description;
+      $scope.status = data.error_description;
     });
   };
 
@@ -308,9 +306,9 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService, va
   $scope.hexToRgb = function ($) {
     var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec($scope.color);
     return result ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16)
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16)
     } : null;
   }
 
@@ -329,7 +327,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService, va
     }).
     error(function (data, status, headers, config) {
       $scope.busy = false;
-        $scope.status = data.error_description;
+      $scope.status = data.error_description;
     });
   };
 
@@ -348,7 +346,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService, va
     }).
     error(function (data, status, headers, config) {
       $scope.busy = false;
-        $scope.status = data.error_description;
+      $scope.status = data.error_description;
     });
   };
 
@@ -367,7 +365,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService, va
     }).
     error(function (data, status, headers, config) {
       $scope.busy = false;
-        $scope.status = data.error_description;
+      $scope.status = data.error_description;
     });
   };
 
@@ -386,7 +384,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService, va
     }).
     error(function (data, status, headers, config) {
       $scope.busy = false;
-        $scope.status = data.error_description;
+      $scope.status = data.error_description;
     });
   };
 
@@ -405,7 +403,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService, va
     }).
     error(function (data, status, headers, config) {
       $scope.busy = false;
-        $scope.status = data.error_description;
+      $scope.status = data.error_description;
     });
   };
 
@@ -424,7 +422,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService, va
     }).
     error(function (data, status, headers, config) {
       $scope.busy = false;
-        $scope.status = data.error_description;
+      $scope.status = data.error_description;
     });
   };
 
@@ -443,7 +441,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService, va
     }).
     error(function (data, status, headers, config) {
       $scope.busy = false;
-        $scope.status = data.error_description;
+      $scope.status = data.error_description;
     });
   };
 
@@ -464,14 +462,14 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService, va
   };
 
   $scope.getPatternNames = function (index) {
-    if(index < $scope.patternCount) {
+    if (index < $scope.patternCount) {
       var promise = patternService.getPatternName(index, $scope.device.id, $scope.accessToken);
-        promise.then(
-          function(payload) {
-            $scope.patterns.push( { index: index, name: payload.data.result });
-            $scope.status = 'Loaded pattern name ' + index;
-            $scope.getPatternNames(index + 1);
-          });
+      promise.then(
+        function (payload) {
+          $scope.patterns.push({ index: index, name: payload.data.result });
+          $scope.status = 'Loaded pattern name ' + index;
+          $scope.getPatternNames(index + 1);
+        });
     }
     else {
       $scope.busy = false;
@@ -501,23 +499,23 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService, va
       });
   };
 
-  $scope.setPattern = function() {
+  $scope.setPattern = function () {
     // $scope.busy = true;
 
     var promise = $http({
-        method: 'POST',
-        url: 'https://api.particle.io/v1/devices/' + $scope.device.id + '/patternIndex',
-        data: { access_token: $scope.accessToken, args: $scope.pattern.index },
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-      })
-        .then(
-          function (payload) {
-            $scope.busy = false;
-            $scope.status = 'Pattern set';
-          },
-          function (errorPayload) {
-            $scope.busy = false;
-          });
+      method: 'POST',
+      url: 'https://api.particle.io/v1/devices/' + $scope.device.id + '/patternIndex',
+      data: { access_token: $scope.accessToken, args: $scope.pattern.index },
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    })
+	  .then(
+	    function (payload) {
+	      $scope.busy = false;
+  	    $scope.status = 'Pattern set';
+	    },
+	    function (errorPayload) {
+  	    $scope.busy = false;
+	    });
   };
 });
 
@@ -530,10 +528,10 @@ app.factory('patternService', function ($http) {
         data: { access_token: accessToken, args: index },
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
       })
-        .then(
-        function (payload) {
-          return $http.get('https://api.particle.io/v1/devices/' + deviceId + '/patternName?access_token=' + accessToken);
-        });
+      .then(
+      function (payload) {
+        return $http.get('https://api.particle.io/v1/devices/' + deviceId + '/patternName?access_token=' + accessToken);
+      });
     }
   }
 });
@@ -547,10 +545,11 @@ app.factory('variableService', function ($http) {
         data: { access_token: accessToken, args: variableName },
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
       })
-        .then(
-        function (payload) {
-          return $http.get('https://api.particle.io/v1/devices/' + deviceId + '/variable?access_token=' + accessToken);
-        });
+      .then(
+      function (payload) {
+        return payload.return_value;
+        //return $http.get('https://api.particle.io/v1/devices/' + deviceId + '/variable?access_token=' + accessToken);
+      });
     }
   }
 });
