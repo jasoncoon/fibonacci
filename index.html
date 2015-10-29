@@ -63,18 +63,6 @@
       </div>
 
       <div class="form-group">
-        <label for="inputTimezone" class="col-sm-2 control-label">Time Zone</label>
-        <div class="col-sm-6">
-          <div class="input-group">
-            <input ng-model="timezone" class="form-control" id="inputTimezone" type="number" min="-12" max="13" ng-disabled="busy || disconnected" />
-            <span class="input-group-btn">
-              <button class="btn" id="btnSetTimezone" ng-click="setTimezone()" ng-disabled="busy || disconnected">Set</button>
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <div class="form-group">
         <label for="inputBrightness" class="col-sm-2 control-label">Brightness</label>
         <div class="col-sm-6">
           <div class="input-group">
@@ -99,12 +87,6 @@
               <button type="button" class="btn btn-default" id="btnSetPattern" ng-click="setPattern()" ng-disabled="busy || disconnected" aria-label="Set Pattern">Set</button>
             </span>
           </div>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <div class="col-sm-offset-2 col-sm-8">
-          <button class="btn btn-default" id="btnFlipClock" ng-click="toggleFlipClock()" ng-disabled="busy || disconnected">Flip Clock</button>
         </div>
       </div>
 

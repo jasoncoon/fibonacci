@@ -13,9 +13,7 @@ app.config(function ($httpProvider) {
 app.controller('MainCtrl', function ($scope, $http, $timeout, patternService, variableService) {
   $scope.brightness = "255";
   $scope.busy = false;
-  $scope.timezone = 0;
   $scope.power = 1;
-  $scope.flipClock = 0;
   $scope.color = "#0000ff"
   $scope.r = 0;
   $scope.g = 0;
@@ -101,27 +99,11 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService, va
     })
 
     .then(function (data) {
-      return variableService.getVariableValue("timezone", $scope.device.id, $scope.accessToken);
-    })
-    .then(function (response) {
-      $scope.timezone = response.data.result;
-      $scope.status = 'Loaded time zone';
-    })
-
-    .then(function (data) {
       return variableService.getVariableValue("brightness", $scope.device.id, $scope.accessToken);
     })
     .then(function (response) {
       $scope.brightness = response.data.result;
       $scope.status = 'Loaded brightness';
-    })
-    
-    .then(function (data) {
-      return variableService.getVariableValue("flipClock", $scope.device.id, $scope.accessToken);
-    })
-    .then(function (response) {
-      $scope.flipClock = response.data.result;
-      $scope.status = 'Loaded clock orientation';
     })
 
     .then(function (data) {
@@ -201,26 +183,6 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService, va
       });
   };
 
-  $scope.togglePower = function () {
-    // $scope.busy = true;
-    var newPower = $scope.power == 0 ? 1 : 0;
-    $http({
-      method: 'POST',
-      url: 'https://api.particle.io/v1/devices/' + $scope.device.id + '/variable',
-      data: { access_token: $scope.accessToken, args: "pwr:" + newPower },
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    }).
-    success(function (data, status, headers, config) {
-      $scope.busy = false;
-      $scope.power = data.return_value;
-      $scope.status = $scope.power == 1 ? 'Turned on' : 'Turned off';
-    }).
-    error(function (data, status, headers, config) {
-      $scope.busy = false;
-      $scope.status = data.error_description;
-    });
-  };
-
   $scope.powerOn = function () {
     // $scope.busy = true;
     $http({
@@ -252,57 +214,6 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService, va
       $scope.busy = false;
       $scope.power = data.return_value;
       $scope.status = $scope.power == 1 ? 'Turned on' : 'Turned off';
-    }).
-    error(function (data, status, headers, config) {
-      $scope.busy = false;
-      $scope.status = data.error_description;
-    });
-  };
-
-  $scope.toggleFlipClock = function () {
-    // $scope.busy = true;
-    var newFlipClock = $scope.flipClock == 0 ? 1 : 0;
-    $http({
-      method: 'POST',
-      url: 'https://api.particle.io/v1/devices/' + $scope.device.id + '/variable',
-      data: { access_token: $scope.accessToken, args: "flpclk:" + newFlipClock },
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    }).
-    success(function (data, status, headers, config) {
-      $scope.busy = false;
-      $scope.flipClock = data.return_value;
-    }).
-    error(function (data, status, headers, config) {
-      $scope.busy = false;
-      $scope.status = data.error_description;
-    });
-  };
-
-  $scope.getTimezone = function () {
-    // $scope.busy = true;
-    $http.get('https://api.particle.io/v1/devices/' + $scope.device.id + '/timezone?access_token=' + $scope.accessToken).
-      success(function (data, status, headers, config) {
-        $scope.busy = false;
-        $scope.timezone = data.result;
-      }).
-      error(function (data, status, headers, config) {
-        $scope.busy = false;
-        $scope.status = data.error_description;
-      });
-  };
-
-  $scope.setTimezone = function ($) {
-    // $scope.busy = true;
-    $http({
-      method: 'POST',
-      url: 'https://api.particle.io/v1/devices/' + $scope.device.id + '/variable',
-      data: { access_token: $scope.accessToken, args: "tz:" + $scope.timezone },
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    }).
-    success(function (data, status, headers, config) {
-      $scope.busy = false;
-      $scope.timezone = data.return_value;
-      $scope.status = 'Time zone set';
     }).
     error(function (data, status, headers, config) {
       $scope.busy = false;

@@ -61,9 +61,6 @@ const PatternAndNameList patterns = {
   { juggle,                 "Juggle" },
   { fire,                   "Fire" },
   { water,                  "Water" },
-  { analogClock,            "Analog Clock" },
-  { analogClockColor,       "Analog Clock Color" },
-  { fastAnalogClock,        "Fast Analog Clock Test" },
   { showSolidColor,         "Solid Color" }
 };
 
@@ -73,8 +70,6 @@ int patternCount = ARRAY_SIZE(patterns);
 int patternIndex = 0;
 String patternName = "Pride";
 int power = 1;
-int flipClock = 0;
-int timezone = -6;
 char variableValue[32] = "";
 
 // variables exposed via the variableValue variable, via Particle Cloud API
@@ -97,8 +92,6 @@ static uint16_t noiseZ;
 uint8_t gHue = 0; // rotating "base color" used by many of the patterns
 
 CRGB solidColor = CRGB(r, g, b);
-
-unsigned long lastTimeSync = millis();
 
 int offlinePin = D7;
 
@@ -132,6 +125,7 @@ CRGBPalette16 targetPalette = palettes[paletteIndex];
 
 void setup() {
     FastLED.addLeds<LED_TYPE,DATA_PIN,CLK_PIN>(leds, NUM_LEDS);
+    FastLED.setCorrection(Typical8mmPixel);
     FastLED.setBrightness(brightness);
     FastLED.setDither(false);
     fill_solid(leds, NUM_LEDS, solidColor);
@@ -155,32 +149,15 @@ void setup() {
     FastLED.setBrightness(brightness);
     FastLED.setDither(brightness < 255);
 
-    uint8_t timezoneSign = EEPROM.read(1);
-    if(timezoneSign < 1)
-        timezone = -EEPROM.read(2);
-    else
-        timezone = EEPROM.read(2);
-
-    if(timezone < -12)
-        timezone = -12;
-    else if (timezone > 14)
-        timezone = 14;
-
-    patternIndex = EEPROM.read(3);
+    patternIndex = EEPROM.read(1);
     if(patternIndex < 0)
         patternIndex = 0;
     else if (patternIndex >= patternCount)
         patternIndex = patternCount - 1;
 
-    flipClock = EEPROM.read(4);
-    if(flipClock < 0)
-        flipClock = 0;
-    else if (flipClock > 1)
-        flipClock = 1;
-
-    r = EEPROM.read(5);
-    g = EEPROM.read(6);
-    b = EEPROM.read(7);
+    r = EEPROM.read(2);
+    g = EEPROM.read(3);
+    b = EEPROM.read(4);
 
     if(r == 0 && g == 0 && b == 0) {
         r = 0;
@@ -197,14 +174,10 @@ void setup() {
 
     Particle.variable("power", power);
     Particle.variable("brightness", brightness);
-    Particle.variable("timezone", timezone);
-    Particle.variable("flipClock", flipClock);
     Particle.variable("patternCount", patternCount);
     Particle.variable("patternIndex", patternIndex);
     Particle.variable("patternName", patternName);
     Particle.variable("variable", variableValue);
-
-    Time.zone(timezone);
 
     noiseX = random16();
     noiseY = random16();
@@ -212,12 +185,6 @@ void setup() {
 }
 
 void loop() {
-    if (Particle.connected() && millis() - lastTimeSync > ONE_DAY_MILLIS) {
-        // Request time synchronization from the Particle Cloud
-        Particle.syncTime();
-        lastTimeSync = millis();
-    }
-
     if(power < 1) {
         fill_solid(leds, NUM_LEDS, CRGB::Black);
         FastLED.show();
@@ -260,14 +227,6 @@ int moveVariableCursor(String args)
         itoa(brightness, variableValue, 10);
         return brightness;
     }
-    else if (args.startsWith("tz")) {
-        itoa(timezone, variableValue, 10);
-        return timezone;
-    }
-    else if (args.startsWith("flpclk")) {
-        itoa(timezone, variableValue, 10);
-        return flipClock;
-    }
     else if (args.startsWith("r")) {
         itoa(r, variableValue, 10);
         return r;
@@ -307,30 +266,24 @@ int setVariable(String args) {
     else if (args.startsWith("brt:")) {
         return setBrightness(args.substring(4));
     }
-    else if (args.startsWith("tz:")) {
-        return setTimezone(args.substring(3));
-    }
-    else if (args.startsWith("flpclk:")) {
-        return setFlipClock(args.substring(7));
-    }
     else if (args.startsWith("r:")) {
         r = parseByte(args.substring(2));
         solidColor.r = r;
-        EEPROM.write(5, r);
+        EEPROM.write(2, r);
         patternIndex = patternCount - 1;
         return r;
     }
     else if (args.startsWith("g:")) {
         g = parseByte(args.substring(2));
         solidColor.g = g;
-        EEPROM.write(6, g);
+        EEPROM.write(3, g);
         patternIndex = patternCount - 1;
         return g;
     }
     else if (args.startsWith("b:")) {
         b = parseByte(args.substring(2));
         solidColor.b = b;
-        EEPROM.write(7, b);
+        EEPROM.write(4, b);
         patternIndex = patternCount - 1;
         return b;
     }
@@ -396,37 +349,6 @@ int setBrightness(String args)
     return brightness;
 }
 
-int setTimezone(String args) {
-    timezone = args.toInt();
-    if(timezone < -12)
-        power = -12;
-    else if (power > 13)
-        power = 13;
-
-    Time.zone(timezone);
-
-    if(timezone < 0)
-        EEPROM.write(1, 0);
-    else
-        EEPROM.write(1, 1);
-
-    EEPROM.write(2, abs(timezone));
-
-    return power;
-}
-
-int setFlipClock(String args) {
-    flipClock = args.toInt();
-    if(flipClock < 0)
-        flipClock = 0;
-    else if (flipClock > 1)
-        flipClock = 1;
-
-    EEPROM.write(4, flipClock);
-
-    return flipClock;
-}
-
 byte parseByte(String args) {
     int c = args.toInt();
     if(c < 0)
@@ -445,7 +367,7 @@ int setPatternIndex(String args)
     else if (patternIndex >= patternCount)
         patternIndex = patternCount - 1;
 
-    EEPROM.write(3, patternIndex);
+    EEPROM.write(1, patternIndex);
 
     return patternIndex;
 }
@@ -536,52 +458,6 @@ uint8_t water() {
     heatMap(IceColors_p, false);
 
     return 30;
-}
-
-uint8_t analogClock() {
-    dimAll(220);
-
-    drawAnalogClock(Time.second(), Time.minute(), Time.hourFormat12(), true, true);
-
-    return 8;
-}
-
-uint8_t analogClockColor() {
-    fill_solid(leds, NUM_LEDS, solidColor);
-
-    drawAnalogClock(Time.second(), Time.minute(), Time.hourFormat12(), false, true);
-
-    return 8;
-}
-
-byte fastSecond = 0;
-byte fastMinute = 0;
-byte fastHour = 1;
-
-uint8_t fastAnalogClock() {
-    fill_solid(leds, NUM_LEDS, CRGB::Black);
-
-    drawAnalogClock(fastSecond, fastMinute, fastHour, false, false);
-
-    fastMinute++;
-
-    // fastSecond++;
-
-    // if(fastSecond >= 60) {
-    //     fastSecond = 0;
-    //     fastMinute++;
-    // }
-
-    if(fastMinute >= 60) {
-        fastMinute = 0;
-        fastHour++;
-    }
-
-    if(fastHour >= 13) {
-        fastHour = 1;
-    }
-
-    return 125;
 }
 
 uint8_t showSolidColor() {
@@ -1255,69 +1131,6 @@ void heatMap(CRGBPalette16 palette, bool up) {
             }
         }
     }
-}
-
-int oldSecTime = 0;
-int oldSec = 0;
-
-void drawAnalogClock(byte second, byte minute, byte hour, boolean drawMillis, boolean drawSecond) {
-    if(Time.second() != oldSec){
-        oldSecTime = millis();
-        oldSec = Time.second();
-    }
-
-    int millisecond = millis() - oldSecTime;
-
-    int secondIndex = map(second, 0, 59, 0, NUM_LEDS);
-    int minuteIndex = map(minute, 0, 59, 0, NUM_LEDS);
-    int hourIndex = map(hour * 5, 5, 60, 0, NUM_LEDS);
-    int millisecondIndex = map(secondIndex + millisecond * .06, 0, 60, 0, NUM_LEDS);
-
-    if(millisecondIndex >= NUM_LEDS)
-        millisecondIndex -= NUM_LEDS;
-
-    hourIndex += minuteIndex / 12;
-
-    if(hourIndex >= NUM_LEDS)
-        hourIndex -= NUM_LEDS;
-
-    // see if we need to reverse the order of the LEDS
-    if(flipClock == 1) {
-        int max = NUM_LEDS - 1;
-        secondIndex = max - secondIndex;
-        minuteIndex = max - minuteIndex;
-        hourIndex = max - hourIndex;
-        millisecondIndex = max - millisecondIndex;
-    }
-
-    if(secondIndex >= NUM_LEDS)
-        secondIndex = NUM_LEDS - 1;
-    else if(secondIndex < 0)
-        secondIndex = 0;
-
-    if(minuteIndex >= NUM_LEDS)
-        minuteIndex = NUM_LEDS - 1;
-    else if(minuteIndex < 0)
-        minuteIndex = 0;
-
-    if(hourIndex >= NUM_LEDS)
-        hourIndex = NUM_LEDS - 1;
-    else if(hourIndex < 0)
-        hourIndex = 0;
-
-    if(millisecondIndex >= NUM_LEDS)
-        millisecondIndex = NUM_LEDS - 1;
-    else if(millisecondIndex < 0)
-        millisecondIndex = 0;
-
-    if(drawMillis)
-        leds[millisecondIndex] += CRGB(0, 0, 127); // Blue
-
-    if(drawSecond)
-        leds[secondIndex] += CRGB(0, 0, 127); // Blue
-
-    leds[minuteIndex] += CRGB::Green;
-    leds[hourIndex] += CRGB::Red;
 }
 
 // scale the brightness of all pixels down
