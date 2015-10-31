@@ -55,7 +55,7 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService, va
 
           for (var i = 0; i < data.length; i++) {
             var device = data[i];
-            device.title = (device.connected == true ? "? " : "? ") + device.name;
+            device.title = (device.connected == true ? "● " : "◌ ") + device.name;
             device.status = device.connected == true ? "online" : "offline";
 
             if (deviceId) {
