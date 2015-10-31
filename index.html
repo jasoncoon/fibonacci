@@ -70,7 +70,8 @@
         <div class="col-sm-6">
           <div class="input-group">
             <span class="input-group-addon" ng-bind="brightness"></span>
-            <input ng-model="brightness" ng-placeholder="brightness" class="form-control" id="inputBrightness" type="range" step="1" min="2" max="255" ng-disabled="busy || !isDeviceSelected" />
+            <input ng-model="brightness" ng-placeholder="brightness" class="form-control" id="inputBrightness"
+                   type="range" step="1" min="2" max="255" ng-disabled="busy || !isDeviceSelected" />
             <span class="input-group-btn">
               <button class="btn btn-default" id="btnSetBrightness" ng-click="setBrightness()" ng-disabled="busy || !isDeviceSelected">Set</button>
             </span>
@@ -82,12 +83,12 @@
         <label for="inputPattern" class="col-sm-2 control-label">Pattern</label>
         <div class="col-sm-6">
           <div class="input-group">
-            <select ng-model="pattern" class="form-control" id="inputPattern" ng-options="pattern.name for pattern in patterns" ng-disabled="busy || !isDeviceSelected"></select>
+            <select ng-model="pattern" class="form-control" id="inputPattern" ng-change="onSelectedPatternChange()"
+                    ng-options="pattern.name for pattern in patterns" ng-disabled="busy || !isDeviceSelected"></select>
             <span class="input-group-btn">
               <button type="button" class="btn btn-default" id="btnGetPatterns" ng-click="getPatterns()" ng-disabled="busy || !isDeviceSelected" aria-label="Refresh Patterns">
                 <span class="glyphicon glyphicon-refresh" aria-hidden="true">
               </button>
-              <button type="button" class="btn btn-default" id="btnSetPattern" ng-click="setPattern()" ng-disabled="busy || !isDeviceSelected" aria-label="Set Pattern">Set</button>
             </span>
           </div>
         </div>
@@ -96,12 +97,7 @@
       <div class="form-group">
         <label for="inputColor" class="col-sm-2 control-label">Color</label>
         <div class="col-sm-6">
-          <div class="input-group">
-            <input type="color" ng-model="color" class="form-control" id="inputColor" ng-disabled="busy || !isDeviceSelected" />
-            <span class="input-group-btn">
-              <button class="btn btn-default" id="btnSetColor" ng-click="setColor()" ng-disabled="busy || isDeviceSelected">Set</button>
-            </span>
-          </div>
+          <input type="color" ng-model="color" class="form-control" id="inputColor" ng-disabled="busy || !isDeviceSelected" ng-change="onSelectedColorChange()" />
         </div>
       </div>
 
