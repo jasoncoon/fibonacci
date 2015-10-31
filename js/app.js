@@ -50,30 +50,29 @@ app.controller('MainCtrl', function ($scope, $http, $timeout, patternService, va
     $http.get('https://api.particle.io/v1/devices?access_token=' + $scope.accessToken).
       success(function (data, status, headers, config) {
         if (data && data.length > 0) {
+          var deviceId = null;
+
           if (Modernizr.localstorage) {
-            var deviceId = localStorage["deviceId"];
+            deviceId = localStorage["deviceId"];
+          }
 
           for (var i = 0; i < data.length; i++) {
             var device = data[i];
             device.title = (device.connected == true ? "● " : "◌ ") + device.name;
             device.status = device.connected == true ? "online" : "offline";
 
-            if (deviceId) {
-                if (data[i].id == deviceId) {
-                  $scope.device = data[i];
-                  $scope.onSelectedDeviceChange();
-                  break;
-                }
-              }
+            if (data[i].id == deviceId) {
+              $scope.device = data[i];
+              $scope.onSelectedDeviceChange();
             }
           }
 
-        $scope.devices = data;
+          $scope.devices = data;
 
-          if (!$scope.device)
-            $scope.device = data[0];
+            if (!$scope.device)
+              $scope.device = data[0];
 
-        $scope.isDeviceSelected = $scope.device != null;
+          $scope.isDeviceSelected = $scope.device != null;
         }
         $scope.status = 'Loaded devices';
       }).
