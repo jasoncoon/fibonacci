@@ -30,21 +30,24 @@
       </div>
 
       <div class="form-group">
-        <div class="col-sm-offset-2 col-sm-8">
-          <button class="btn btn-default" id="btnGetDevices" ng-click="getDevices()" ng-disabled="busy">Get Devices</button>
-        </div>
-      </div>
-
-      <div class="form-group">
         <label for="inputDevices" class="col-sm-2 control-label">Device</label>
         <div class="col-sm-6">
           <div class="input-group">
             <select class="form-control" ng-model="device" ng-change="onSelectedDeviceChange()"
-                  ng-options="device.name for device in devices | orderBy:name"></select>
+                    ng-options="device.title for device in devices | orderBy:title"></select>
             <span class="input-group-btn">
-              <button class="btn btn-default" id="btnConnect" ng-click="connect()" ng-disabled="busy">Connect</button>
+              <button type="button" class="btn btn-default" id="btnGetDevices" ng-click="getDevices()" ng-disabled="busy" aria-label="Refresh Devices">
+                <span class="glyphicon glyphicon-refresh" aria-hidden="true">
+              </button>
+              <button class="btn btn-default" id="btnConnect" ng-click="connect()" ng-disabled="busy || !isDeviceSelected">Connect</button>
             </span>
           </div>
+        </div>
+      </div>
+
+      <div class="form-group" ng-show="isDeviceSelected">
+        <div class="col-sm-offset-2 col-sm-6">
+          <p class="form-control-static"><b>Status</b>: <span ng-bind="device.status"></span> <b>Last heard</b>: <span ng-bind="device.last_heard | date:'medium'"></span></p>
         </div>
       </div>
 
@@ -52,10 +55,10 @@
         <label class="col-sm-2 control-label">Power</label>
         <div class="col-sm-6">
           <div class="btn-group" role="group" aria-label="Power">
-            <button type="button" class="btn btn-default" id="btnPowerOn" ng-click="powerOn()" ng-disabled="busy || disconnected">
+            <button type="button" class="btn btn-default" id="btnPowerOn" ng-click="powerOn()" ng-disabled="busy || !isDeviceSelected">
               On
             </button>
-            <button type="button" class="btn btn-default" id="btnPowerOff" ng-click="powerOff()" ng-disabled="busy || disconnected">
+            <button type="button" class="btn btn-default" id="btnPowerOff" ng-click="powerOff()" ng-disabled="busy || !isDeviceSelected">
               Off
             </button>
           </div>
@@ -67,9 +70,9 @@
         <div class="col-sm-6">
           <div class="input-group">
             <span class="input-group-addon" ng-bind="brightness"></span>
-            <input ng-model="brightness" ng-placeholder="brightness" class="form-control" id="inputBrightness" type="range" step="1" min="2" max="255" ng-disabled="busy || disconnected" />
+            <input ng-model="brightness" ng-placeholder="brightness" class="form-control" id="inputBrightness" type="range" step="1" min="2" max="255" ng-disabled="busy || !isDeviceSelected" />
             <span class="input-group-btn">
-              <button class="btn btn-default" id="btnSetBrightness" ng-click="setBrightness()" ng-disabled="busy || disconnected">Set</button>
+              <button class="btn btn-default" id="btnSetBrightness" ng-click="setBrightness()" ng-disabled="busy || !isDeviceSelected">Set</button>
             </span>
           </div>
         </div>
@@ -79,12 +82,12 @@
         <label for="inputPattern" class="col-sm-2 control-label">Pattern</label>
         <div class="col-sm-6">
           <div class="input-group">
-            <select ng-model="pattern" class="form-control" id="inputPattern" ng-options="pattern.name for pattern in patterns" ng-disabled="busy || disconnected"></select>
+            <select ng-model="pattern" class="form-control" id="inputPattern" ng-options="pattern.name for pattern in patterns" ng-disabled="busy || !isDeviceSelected"></select>
             <span class="input-group-btn">
-              <button type="button" class="btn btn-default" id="btnGetPatterns" ng-click="getPatterns()" ng-disabled="busy || disconnected" aria-label="Refresh Patterns">
-                <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
+              <button type="button" class="btn btn-default" id="btnGetPatterns" ng-click="getPatterns()" ng-disabled="busy || !isDeviceSelected" aria-label="Refresh Patterns">
+                <span class="glyphicon glyphicon-refresh" aria-hidden="true">
               </button>
-              <button type="button" class="btn btn-default" id="btnSetPattern" ng-click="setPattern()" ng-disabled="busy || disconnected" aria-label="Set Pattern">Set</button>
+              <button type="button" class="btn btn-default" id="btnSetPattern" ng-click="setPattern()" ng-disabled="busy || !isDeviceSelected" aria-label="Set Pattern">Set</button>
             </span>
           </div>
         </div>
@@ -94,9 +97,9 @@
         <label for="inputColor" class="col-sm-2 control-label">Color</label>
         <div class="col-sm-6">
           <div class="input-group">
-            <input type="color" ng-model="color" class="form-control" id="inputColor" ng-disabled="busy || disconnected" />
+            <input type="color" ng-model="color" class="form-control" id="inputColor" ng-disabled="busy || !isDeviceSelected" />
             <span class="input-group-btn">
-              <button class="btn btn-default" id="btnSetColor" ng-click="setColor()" ng-disabled="busy || disconnected">Set</button>
+              <button class="btn btn-default" id="btnSetColor" ng-click="setColor()" ng-disabled="busy || isDeviceSelected">Set</button>
             </span>
           </div>
         </div>
@@ -108,7 +111,7 @@
           <div class="input-group">
             <input ng-model="noiseSpeedX" class="form-control" id="inputNoiseSpeedX" type="number" min="0" max="255" ng-disabled="busy || disconnected" />
             <span class="input-group-btn">
-              <button class="btn" id="btnSetNoiseSpeedX" ng-click="setNoiseSpeedX()" ng-disabled="busy || disconnected">Set</button>
+              <button class="btn" id="btnSetNoiseSpeedX" ng-click="setNoiseSpeedX()" ng-disabled="busy || isDeviceSelected">Set</button>
             </span>
           </div>
         </div>
@@ -120,7 +123,7 @@
           <div class="input-group">
             <input ng-model="noiseSpeedY" class="form-control" id="inputNoiseSpeedY" type="number" min="0" max="255" ng-disabled="busy || disconnected" />
             <span class="input-group-btn">
-              <button class="btn" id="btnSetNoiseSpeedY" ng-click="setNoiseSpeedY()" ng-disabled="busy || disconnected">Set</button>
+              <button class="btn" id="btnSetNoiseSpeedY" ng-click="setNoiseSpeedY()" ng-disabled="busy || isDeviceSelected">Set</button>
             </span>
           </div>
         </div>
@@ -132,7 +135,7 @@
           <div class="input-group">
             <input ng-model="noiseSpeedZ" class="form-control" id="inputNoiseSpeedZ" type="number" min="0" max="255" ng-disabled="busy || disconnected" />
             <span class="input-group-btn">
-              <button class="btn" id="btnSetNoiseSpeedZ" ng-click="setNoiseSpeedZ()" ng-disabled="busy || disconnected">Set</button>
+              <button class="btn" id="btnSetNoiseSpeedZ" ng-click="setNoiseSpeedZ()" ng-disabled="busy || isDeviceSelected">Set</button>
             </span>
           </div>
         </div>
@@ -144,7 +147,7 @@
           <div class="input-group">
             <input ng-model="noiseScale" class="form-control" id="inputNoiseScale" type="number" min="0" max="255" ng-disabled="busy || disconnected" />
             <span class="input-group-btn">
-              <button class="btn" id="btnSetNoiseScale" ng-click="setNoiseScale()" ng-disabled="busy || disconnected">Set</button>
+              <button class="btn" id="btnSetNoiseScale" ng-click="setNoiseScale()" ng-disabled="busy || isDeviceSelected">Set</button>
             </span>
           </div>
         </div>
